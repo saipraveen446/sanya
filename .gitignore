@@ -1,0 +1,15 @@
+.env
+.venv
+venv
+# Python writes these on import; they are not source files
+__pycache__
+*.pyc
+.pytest_cache
+.mypy_cache
+node_modules
+dist
+.DS_Store
+*.log
+.idea
+.vscode
+pgdata

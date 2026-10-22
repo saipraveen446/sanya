@@ -1,0 +1,1 @@
+ALTER TABLE reminders ADD COLUMN IF NOT EXISTS pre_notified_at TIMESTAMPTZ;
