@@ -32,6 +32,36 @@ Telegram-first personal assistant with a web dashboard. Four skills are live: Ex
 6. Start: `docker compose up --build`
 7. Open the dashboard at `http://localhost:3001` and the API at `http://localhost:8000/api/health`. `"llm": true` plus `"llm_provider": "gemini"` means that provider is the one that will be tried first.
 
+## Telegram bot modes: polling vs webhook
+
+The bot supports two modes. The mode is chosen automatically based on whether `PUBLIC_URL` is set.
+
+### Polling (local / default)
+
+Used when `PUBLIC_URL` is **not set**. The bot long-polls Telegram for updates. No public URL is needed.
+
+```
+# .env — leave PUBLIC_URL empty or omit it
+TELEGRAM_BOT_TOKEN=your_token
+```
+
+Start normally: `docker compose up --build`
+
+### Webhook (production / any hosted service)
+
+Used when `PUBLIC_URL` **is set**. Telegram pushes updates to `{PUBLIC_URL}/api/telegram/webhook`. This avoids the polling conflict error that occurs when a host does rolling deploys with two instances briefly running at the same time.
+
+Set these on your hosting provider (e.g. Render, Railway, Fly.io):
+
+| Variable | Value |
+| --- | --- |
+| `PUBLIC_URL` | `https://your-backend-domain.com` (no trailing slash) |
+| `TELEGRAM_BOT_TOKEN` | your bot token |
+
+The webhook is registered with Telegram automatically on startup and removed cleanly on shutdown. No manual setup via BotFather or the Telegram API is needed.
+
+**Verify it is working:** `GET /api/health` returns `"telegram_polling": true` in both modes once the bot is connected.
+
 ## Skills
 
 Sanya picks a skill, then runs that skill's parser. Pin one with `/use`, a command such as `/expenses`, or a prefix (`expenses: tiffin 80`). If routing is unsure, `DEFAULT_SKILL` is used.
@@ -149,6 +179,7 @@ To add a skill: add `backend/app/skills/<name>/` with `parser.py` and `skill.py`
 ## Main API
 
 - `GET /api/health`
+- `POST /api/telegram/webhook` (used by Telegram in webhook mode; not called directly)
 - `GET /api/skills`
 - `POST /api/skills/parse` `{ "text": "...", "skill": "expense_tracking" }`
 - `POST /api/skills/handle` same body; parses and saves or runs the skill
