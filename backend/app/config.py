@@ -11,6 +11,7 @@ class Settings(BaseSettings):
     app_timezone: str = "Asia/Kolkata"
     default_currency: str = "INR"
     cors_origins: str = "http://localhost:3001,http://localhost:5173"
+    public_url: str = ""
     default_skill: str = "expense_tracking"
 
     # Preferred provider, tried first. auto uses the free-first fallback order.
